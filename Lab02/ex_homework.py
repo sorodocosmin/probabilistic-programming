@@ -84,14 +84,14 @@ def ex_3 ():
     while i < 100:
         #aruncam cu banii de 10 ori
         for _ in range(10):
-            nr_random_ban_1 = random.randint(1,2)
+            nr_random_ban_1 = random.randint(0,1)
             nr_random_ban_2 = random.randint(1,100)
-            if nr_random_ban_2 <= 30 and nr_random_ban_1 ==0 : #obtinem ss
+            if nr_random_ban_2 <= 30 and nr_random_ban_1 == 0 : #obtinem ss
                 ss.append(1)
                 sb.append(0)
                 bs.append(0)
                 bb.append(0)
-            elif nr_random_ban_2 < 30 and nr_random_ban_1 == 1 : #obtinem bs
+            elif nr_random_ban_2 <= 30 and nr_random_ban_1 == 1 : #obtinem bs
                 bs.append(1)
                 ss.append(0)
                 sb.append(0)
@@ -115,8 +115,7 @@ def ex_3 ():
     plt.show()
 
 
-# ex_1()
-# ex_2()
-# ex_3()
-ex_3()
+#ex_1()
+#ex_2()
+#ex_3()
 
