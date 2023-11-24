@@ -82,7 +82,8 @@ def ex_1_2():
     cpdr_decide_cine_incepe = TabularCPD('decide_cine_incepe', 2, [[0.5], [0.5]])
 
     cpdr_prima_runda = TabularCPD('prima_runda', 2, [[1/3, 0.5], [2/3, 0.5]], evidence=['decide_cine_incepe'], evidence_card=[2])
-                                                                            # daca incepe primul player -> 1/3
+                                                                            #   |-> daca incepe player 0 -> 1/3(pt a obtine stema)
+                                                                            # bineintes, probabilitatea ca sa nu se obtina stema(de catre playerul 1) este 2/3
     cpdr_a_doua_runda = TabularCPD('a_doua_runda', 2, [[1/3, 2/3, 0.5, 0.5], [2/3, 1/3, 0.5, 0.5]], evidence=['prima_runda', 'decide_cine_incepe'], evidence_card=[2, 2])
 
     model.add_cpds(cpdr_decide_cine_incepe, cpdr_prima_runda, cpdr_a_doua_runda)
@@ -99,10 +100,10 @@ def ex_1_2():
     inferenta = VariableElimination(model)
     prob_prima_runda = inferenta.query(variables=['prima_runda'],
                                        evidence={'a_doua_runda': 0})
-    # probabilitate fata prima runda, stiind ca nr de steme in a 2-a rund este 0
+    # probabilitate fata prima runda, stiind ca nr de steme in a 2-a runda este 0
     print(prob_prima_runda)
-    prob_ban = prob_prima_runda.values[0]
-    prob_stema = prob_prima_runda.values[1]
+    prob_ban = prob_prima_runda.values[0] # probabilitatea ca in prima runda sa se fi obtinut ban
+    prob_stema = prob_prima_runda.values[1] # probabilitatea ca in prima runda sa se fi obtinut stema
     if prob_ban > prob_stema:
         print("Este mai probabil ca in prima runda sa se fi obtinut ban, stiind ca in a 2-a runda nu s-a obtinut stema")
     else:
