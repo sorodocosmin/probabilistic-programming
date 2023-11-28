@@ -37,6 +37,6 @@ plt.show()
 # Solutii mai compacte care generau direct distributiile combinatiilor sunt si ele corecte
 # Ex:
 X = stats.multinomial.rvs(10,[0.5*0.7,0.5*0.3,0.5*0.7,0.5*0.3], size=100) # Generat probabilitatile pentru combinatiile de monezi
-
+print(X)
 az.plot_posterior({'bb':X[:,0],'bs':X[:,1],'sb':X[:,2],'ss':X[:,3]})
 plt.show()

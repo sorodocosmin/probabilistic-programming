@@ -28,6 +28,7 @@ axes[1].scatter(X2, Y, alpha=0.6)
 axes[0].set_ylabel("Y")
 axes[0].set_xlabel("X1")
 axes[1].set_xlabel("X2")
+axes[0].grid(True)
 plt.show()
 
 # Define a model
@@ -42,6 +43,7 @@ with basic_model:
 
     # Expected value of outcome
     mu = alpha + beta[0] * X1 + beta[1] * X2
+    print(f"mu: {mu}")
 
     # Likelihood (sampling distribution) of observations
     Y_obs = pm.Normal("Y_obs", mu=mu, sigma=sigma, observed=Y)

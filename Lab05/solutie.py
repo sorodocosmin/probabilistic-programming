@@ -67,7 +67,7 @@ with pm.Model() as model:
     alpha = 3
     nr_clienti = pm.Poisson("nr_clienti", mu=20)
     timpPlasarePLata = pm.Normal("timpPlasarePlata", mu=2, sigma=0.5)
-    timpPregatire = pm.Exponential("timpPregatire", mu=alpha)
+    timpPregatire = pm.Exponential("timpPregatire", lam=1 / alpha)
     observation = pm.Poisson("obs", mu=timpPregatire, observed=meanlist)
 
 

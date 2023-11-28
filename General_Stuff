@@ -1,0 +1,182 @@
+
+import arviz (ArviZ):
+
+- ArviZ oferă multe funcționalități utile pentru analiza rezultatelor modelelor bayesiene. Iată câteva exemple de utilizare a ArviZ:
+    -   Plotarea Densității Posteriore (Posterior Density Plot):
+        # 'trace' reprezintă rezultatele eșantionării MCMC
+        az.plot_posterior(trace)
+        plt.show()
+    - az.plot_trace() - Plotarea urmăririi lanțului Markov (Markov Chain Trace Plot)
+    - Compararea a două sau mai multe Modele (Model Comparison):
+        trace_model1 = ...  # Rezultatele eșantionării pentru primul model
+        trace_model2 = ...  # Rezultatele eșantionării pentru al doilea model
+
+        az.compare({"Model 1": trace_model1, "Model 2": trace_model2})
+
+import matplotlib.pyplot as plt
+
+- Folosită pentru a crea grafice și vizualizări.
+
+numpy (np):
+
+- Scopul: NumPy este o bibliotecă puternică pentru operații numerice în Python. Oferă suport pentru matrice și tablouri multidimensionale, împreună cu funcții matematice pentru manipularea acestor tablouri.
+    Caracteristici cheie:
+        - Operații eficiente cu tablouri.; Funcții matematice pentru manipularea tablourilor. ; Operații de algebră liniară.
+
+pymc (PyMC):
+
+- Scopul: PyMC este o bibliotecă de programare probabilistică pentru modelarea și ajustarea statistică bayesiană în Python. Permite utilizatorilor să exprime modele folosind o sintaxă care urmează îndeaproape notația matematică a unui model probabilistic.
+    Caracteristici cheie:
+        - Modelare statistică bayesiană. ; Eșantionare Markov Chain Monte Carlo (MCMC). ; Verificare și diagnosticare a modelului.
+
+
+
+
+------------------------------LAB 1--------------------------------------------
+- alpha, sigma = 1, 1: Se inițializează parametrii adevărați ai modelului. alpha și sigma sunt setați la 1.
+
+- beta = [1, 2.5]: Se inițializează coeficienții adevărați ai variabilelor predictor (X1 și X2). Avem doi coeficienți, 1 pentru X1 și 2.5 pentru X2.
+
+size = 100: Se specifică dimensiunea setului de date simulat.
+
+- X1 = np.random.randn(size): Se generează o variabilă predictor (X1) cu o distribuție normală de dimensiune size.
+- X2 = np.random.randn(size) * 0.2: Se generează o altă variabilă predictor (X2) cu o distribuție normală, dar înmulțită cu 0.2 pentru a avea o contribuție mai mică la variabila dependentă.
+Funcția np.random.randn generează valori aleatoare dintr-o distribuție normală standard, adică o distribuție normală cu medie zero și deviație standard 1.
+
+
+- Y = alpha + beta[0] * X1 + beta[1] * X2 + np.random.randn(size) * sigma:
+Se simulează variabila dependentă (Y) pe baza parametrilor adevărați și a variabilelor predictor simulate (X1 și X2).
+Se adaugă și un termen de eroare cu o distribuție normală (np.random.randn(size) * sigma).
+
+
+- fig, axes = plt.subplots(1, 2, sharex=True, figsize=(10, 4))
+creează o figură care conține două subploturi dispuse orizontal (1, 2). sharex=True înseamnă că ambele subploturi împart aceeași axă x, iar figsize=(10, 4) stabilește dimensiunile figurii.
+
+axes[0].scatter(X1, Y, alpha=0.6) desenează un scatter plot (diagramă de dispersie) pe primul subplot (axes[0]) cu X1 pe axa x și Y pe axa y.
+Parametrul alpha controlează transparența punctelor din scatter plot.
+Similar, axes[1].scatter(X2, Y, alpha=0.6) desenează un scatter plot pe al doilea subplot (axes[1]) cu X2 pe axa x și Y pe axa y.
+axes[0].set_ylabel("Y") și axes[0].set_xlabel("X1") stabilesc etichetele axelor pentru primul subplot, iar axes[1].set_xlabel("X2") stabilește eticheta axei x pentru al doilea subplot.
+Se poate adaiga si un grid :
+axes[0].grid(True)
+
+- Cum poate fi folosit fig ?
+    - Setarea unui fundal colorat: fig.patch.set_facecolor('lightgray')
+    - Salvarea figurii într-un fișier: fig.savefig("figura.png")
+    - Adăugarea unui titlu: fig.suptitle("Titlu")
+    - Adăugarea unei legende: fig.legend()
+    - Adăugarea unui text: fig.text(x, y, "Text")
+
+- Definirea modelului Bayesian
+with basic_model:: Această declarație marchează începutul unui context pentru modelul Bayesian definit mai sus.
+Toate variabilele probabilistice definite în cadrul acestui context vor face parte din acest model.
+
+Priori (pm.Normal și pm.HalfNormal):
+Se definesc distribuțiile priori pentru parametrii necunoscuți ai modelului.
+pm.Normal reprezintă o distribuție normală (Gaussiană), iar pm.HalfNormal este o distribuție normală trunchiată pentru valori pozitive.
+Aceste distribuții exprimă presupunerile noastre anterioare despre parametrii modelului.
+
+alpha: Intercept-ul modelului liniar.
+beta: Coeficienții de regresie pentru variabilele predictor X1 și X2. shape=2 specifică că avem doi coeficienți în total.
+sigma: Deviația standard a termenilor de eroare.
+mu: Acesta este termenul așteptat al rezultatului (Y).
+Într-un model liniar, acesta este o combinație liniară a predictorilor, ponderată cu coeficienții relevanți.
+
+Likelihood (Y_obs): Aceasta definește distribuția de probabilitate a observațiilor (rezultatelor) dată presupunerile noastre anterioare și valorile așteptate.
+În cazul nostru, observațiile (Y) sunt distribuite normal în jurul valorilor așteptate (mu), cu o deviație standard (sigma).
+
+observed=Y: Acest lucru indică că Y_obs este observat în datele noastre.
+
+map_estimate = pm.find_MAP(model=basic_model)
+print(map_estimate): Acesta este un mod de a găsi estimările MAP (Maximum A Posteriori) pentru parametrii modelului.
+Metoda find_MAP (Maximum A Posteriori) este utilizată pentru a găsi valori ale parametrilor
+care maximizează a posteriori distribuția (PDF) a parametrilor, adică distribuția care combină distribuția
+de probabilitate a datelor (likelihood) cu distribuțiile anterioare ale parametrilor (priors).
+În mod simplu, MAP găsește punctul în spațiul parametrilor unde acest produs atinge maximul.
+
+
+
+------------------------------LAB 2--------------------------------------------
+
+EX : 1
+m1 = stats.expon.rvs(0,1/4, size=10000) # Distributie exponentiala a timpului de servire a primului mecanic
+
+servit_m1 = stats.binom.rvs(1,0.4, size=10000) # Distributia sansei de a fi preluat de mecanicul 1 este reprezentata printr-o distributie binomiala cu probabilitatea de 40%
+o distributie binomiala care modeleaza nr de sucese intr-un nr fix de
+incercari independente, fiecare avand aceeasi probabilitate de succes
+stats.binom.rvs(nr_incercari, prob_succes, size=nr_simulari)
+
+Aici, servit_m1 == 1 este o expresie booleană care produce un vector de valori True și False. În contextul tău, această expresie este folosită pentru a filtra valorile din vectorul servit_m1. Când servit_m1[i] este egal cu 1, atunci servit_m1 == 1 va produce True pentru acea poziție (i), altfel va produce False.
+
+Deci, expresia m1[servit_m1 == 1] returnează un subset al vectorului m1 care conține doar elementele corespunzătoare pozițiilor unde servit_m1 are valoarea 1. Analog, m2[servit_m1 == 0] returnează un subset al vectorului m2 unde servit_m1 are valoarea 0.
+
+X = np.concatenate((m1[servit_m1 == 1], m2[servit_m1 == 0]))
+
+Apoi, np.concatenate este folosit pentru a combina aceste două subset-uri într-un singur vector X.
+Astfel, vectorul X conține valorile corespunzătoare mecanicului 1 atunci când servit_m1 este 1
+și valorile corespunzătoare mecanicului 2 atunci când servit_m1 este 0.
+
+EX 3 :
+
+Distribuția multinomială este o generalizare a distribuției binomiale la mai multe categorii.
+În cazul nostru, avem patru categorii posibile pentru rezultatele aruncării celor două monezi: "bb", "bs", "sb", și "ss".
+Prin urmare, utilizăm o distribuție multinomială pentru a modela rezultatele celor zece aruncări ale celor două monezi.
+
+X[:, 0], X[:, 1], X[:, 2], și X[:, 3] sunt indexări de tip slicing pe matricea X.
+Matricea X conține rezultatele simulării experimentului, iar fiecare coloană a matricei reprezintă o categorie diferită ("bb", "bs", "sb", "ss"). Slicing-ul [:, 0] selectează toate rândurile din prima coloană a matricei X, adică rezultatele pentru categoria "bb".
+
+
+
+
+------------------------------LAB 3--------------------------------------------
+
+pgmpy : - curs slides final -- https://drive.google.com/file/d/1uoqltdExKTdSHQpcTFWq1dtmMixRsZrr/view
+
+daca exista muchie intre 2 noduri, atunci ele sunt conditionate
+ex : ( 'A', 'B' ) => B | A
+▶ Nodurile grafului reprezintă variabilele, iar arcele direcționate indică direcția dependenței probabilistice.
+
+
+pymc - exercitiu model :
+pm.Deterministic:
+
+pm.Deterministic este folosit pentru a defini o variabilă aleatoare care este determinată în mod direct de alte variabile din model, fără să fie variabilă aleatoare în sine. În acest caz, cumpara_produs este o astfel de variabilă. Acesta este un pas important, deoarece variabilele deterministice nu au o distribuție de probabilitate proprie, ci sunt determinate complet de valorile altor variabile.
+pm.Deterministic('cumpara_produs', pm.math.switch(...)) se referă la faptul că variabila deterministă cumpara_produs este calculată folosind funcția pm.math.switch. Această funcție este o instrucțiune condițională și este utilizată pentru a implementa regulile date în cerință pentru modul în care cumpărătorul ia decizia de a cumpăra un produs.
+pm.Bernoulli(p=cumpara_produs, observed=1):
+
+p=cumpara_produs specifică că această variabilă Bernoulli are o probabilitate de succes dată de cumpara_produs.
+În cazul nostru, cumpara_produs este variabila deterministă calculată anterior.
+observed=1 specifică că această variabilă este observată și valoarea observată este 1.
+Aceasta indică că, în datele observate, cumpărătorul a cumpărat efectiv produsul.
+
+
+
+
+
+
+------------------------------LAB 4--------------------------------------------
+
+
+
+Bonus -- care a fost la Lab 5 :
+
+
+
+------------------------------LAB 5--------------------------------------------
+
+În modelul Bayesian, variabilele lmbd1, lmbd2, lmbd3, lmbd4 reprezintă ratele aleatoare ale distribuției Poisson și sunt definite în funcție de momentele de schimbare tau1, tau2, tau3, tau4. Acestea sunt funcții switch care depind de momentul de timp (idx) și de valorile aleatoare lambda_1, lambda_2, lambda_3, lambda_4, lambda_5. Iată o explicație detaliată:
+
+tau1, tau2, tau3, tau4 sunt variabile discrete uniforme care reprezintă momentele de schimbare ale ratei de sosire a distribuției Poisson. Aceste momente de schimbare sunt parametri pe care modelul încearcă să le estimeze din datele observate.
+
+idx este un vector care conține indicii de la 0 la n_count_data - 1 (lungimea datelor observate).
+
+lmbd1, lmbd2, lmbd3, lmbd4 sunt funcții switch care folosesc momentele de schimbare pentru a alege între ratele diferite lambda_1, lambda_2, lambda_3, lambda_4, lambda_5 în funcție de momentul de timp (idx):
+
+lmbd1: Utilizează lambda_1 dacă tau1 este mai mare decât momentul de timp (idx), altfel utilizează lambda_2.
+lmbd2: Utilizează lmbd1 dacă tau2 este mai mare decât momentul de timp (idx), altfel utilizează lambda_3.
+lmbd3: Utilizează lmbd2 dacă tau3 este mai mare decât momentul de timp (idx), altfel utilizează lambda_4.
+lmbd4: Utilizează lmbd3 dacă tau4 este mai mare decât momentul de timp (idx), altfel utilizează lambda_5.
+În esență, aceste funcții permit modelului să se adapteze la schimbările în ratele distribuției Poisson în funcție de momentele de schimbare estimate.
+Variabilele lmbd1, lmbd2, lmbd3, lmbd4 sunt utilizate ulterior în definirea distribuției Poisson pentru datele observate (observation = pm.Poisson("obs", lmbd4, observed=count_data[:, 1])).
+
+
+

@@ -33,7 +33,7 @@ cpd_b = TabularCPD(variable='B', variable_card=2,
 
 cpd_c = TabularCPD(variable='C', variable_card=2,
                    values=[[1 - 0.0001, 1 - 0.95, 1 - 0.02, 1 - 0.98],
-                           [0.0001, 0.95, 0.02, 0.98]],  # A=0,B=0; A=0,B=1; A=1,B=0; A=1,b=1
+                           [0.0001, 0.95, 0.02, 0.98]],  # A=0,B=0; eA=0,B=1; A=1,B=0; A=1,b=1
                    evidence=['A', 'B'],
                    evidence_card=[2, 2])
 
