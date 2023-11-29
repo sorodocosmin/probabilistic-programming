@@ -67,6 +67,25 @@ def main():
 
     # POINT 4
 
+    sp_freq_proc = 33
+    sp_log_size_hard_drive = np.log(540)
+
+    selected_indices = np.where((speed == sp_freq_proc) & (log_size_hard_drive == sp_log_size_hard_drive))[0]
+
+    price_estimated = idata.posterior['miu'][:, selected_indices]
+
+    hdi_price_estimated = az.hdi(price_estimated, hdi_prob=0.95)
+    print(f"95% HDI pentru de vanzare : {hdi_price_estimated}")
+
+    # POINT 5
+
+    with model_regression:
+        price_post_estimation = pm.sample_posterior_predictive(idata, var_names=['price_observed'], samples=5_000)
+
+    prices_dpp = price_post_estimation[:, (speed == sp_freq_proc) & (log_size_hard_drive == sp_log_size_hard_drive)]
+
+    hdi_prices_dpp = az.hdi(prices_dpp, hdi_prob=0.95)
+    print(f"95% HDI pentru de vanzare din distributia predictiva posterioara : {hdi_prices_dpp}")
 
     # BONUS
 
