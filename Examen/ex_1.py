@@ -19,10 +19,10 @@ def main():
 
     #pentru a ne face o idee asupra mediilor si dev. standard:
 
-    # print(len(output_survived[output_survived==1]),len(output_survived[output_survived==0]))
-    # # de asemenea, se observa ca datele nu sunt echilibrate 127 - 205
-    # Index = np.random.choice(np.flatnonzero(output_survived==0), size=len(output_survived[output_survived==0])-len(output_survived[output_survived==1]), replace=False) #pentru a balansa datele, alegem la intamplare indici pentru a fi stersi
-    # df = df.drop(labels=Index)
+    print(len(output_survived[output_survived==1]),len(output_survived[output_survived==0]))
+    # de asemenea, se observa ca datele nu sunt echilibrate 127 - 205
+    Index = np.random.choice(np.flatnonzero(output_survived==0), size=len(output_survived[output_survived==0])-len(output_survived[output_survived==1]), replace=False) #pentru a balansa datele, alegem la intamplare indici pentru a fi stersi
+    df = df.drop(labels=Index)
 
     col_age = df["Age"].values
     col_class = df["Pclass"].values
@@ -31,7 +31,7 @@ def main():
 
     # standardizam datele pt age
     col_age = (col_age - age_mean)/age_std
-    # pt class, atribut discret, nu facem standardizarea
+    # pt class este atribut discret, nu facem standardizarea
 
     X = np.column_stack((col_age, col_class))
     X_mean = X.mean(axis=0, keepdims=True)
@@ -44,12 +44,10 @@ def main():
     # ex b)
     with pm.Model() as model_mlr:
         alpha = pm.Normal('alpha', mu=0, sigma=10)
-        beta = pm.Normal('beta', mu=0, sigma=1, shape=2)
-        X_shared = pm.MutableData('x_shared',X)
+        beta = pm.Normal('beta', mu=0, sigma=1, shape=2)  # cum datele au ost standardizate, avem un sigma mic
+        X_shared = pm.MutableData('x_shared',X) # folosim un x_shared pentru a putea face prezicearea pentru o persoana noua ( d)
         miu = pm.Deterministic('miu',alpha + pm.math.dot(X_shared, beta))
         theta = pm.Deterministic('theta', pm.math.sigmoid(miu))
-
-        bd = pm.Deterministic('bd', -alpha/beta[1] + beta[0]/beta[1] * X_shared[:,0].mean())
 
         y_pred = pm.Bernoulli('y_pred', p=theta, observed=output_survived)
 
@@ -68,7 +66,9 @@ def main():
 
     # d)
     # persoana de 30 de ani(care va fi standardizata), de la clasa a2-a
-    obs_std2 = [(30-age_mean)/age_mean, 2]
+    # standardizam atributul varsta
+    class_person = 2
+    obs_std2 = [(30-age_mean)/age_mean, class_person]
     pm.set_data({"x_shared":[obs_std2]}, model=model_mlr)
     ppc = pm.sample_posterior_predictive(idata, model=model_mlr,var_names=["theta"])
     y_ppc = ppc.posterior_predictive['theta'].stack(sample=("chain", "draw")).values
@@ -77,8 +77,6 @@ def main():
     plt.show()
     # Din graffic se poate observa ca o astfel de persoana are o probabilitate de 39% sa supravietuiasca
 
-
-    
 
 if __name__=="__main__":
     main()
